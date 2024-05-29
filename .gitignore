@@ -83,3 +83,7 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+#firebase
+firebase.json
+lib/firebase_options.dart
