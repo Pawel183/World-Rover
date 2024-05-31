@@ -30,7 +30,7 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
 
-    if (_selectedImage == null) {
+    if (_selectedImage == null && _isLogin == false) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

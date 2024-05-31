@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:world_rover/screens/auth.dart';
-import 'package:world_rover/screens/home_page.dart';
 import 'package:world_rover/screens/splash.dart';
+import 'package:world_rover/screens/tabs.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
           }
 
           if (snapshot.hasData) {
-            return const HomePageScreen();
+            return const TabsScreen();
           } else {
             return const AuthScreen();
           }
