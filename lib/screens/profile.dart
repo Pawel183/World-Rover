@@ -9,9 +9,11 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
     super.key,
     required this.user,
+    required this.setUserAvatar,
   });
 
   final User? user;
+  final void Function() setUserAvatar;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -40,6 +42,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       print("Error getting document: $e");
     }
+
+    widget.setUserAvatar();
   }
 
   @override

@@ -69,8 +69,10 @@ class _TabsScreenState extends State<TabsScreen> {
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ProfileScreen(user: _firebase.currentUser,),
-                    
+                    builder: (context) => ProfileScreen(
+                      user: _firebase.currentUser,
+                      setUserAvatar: setUserAvatar,
+                    ),
                   ),
                 );
               },
