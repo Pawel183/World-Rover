@@ -47,6 +47,8 @@ class _AvatarImagePickerState extends State<AvatarImagePicker> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+
+        // Avatar
         CircleAvatar(
           radius: 40,
           foregroundImage: _pickedImageFile != null
@@ -55,6 +57,7 @@ class _AvatarImagePickerState extends State<AvatarImagePicker> {
         ),
         Column(
           children: [
+            // Camera picker
             TextButton.icon(
               onPressed: () {
                 _takePicture("camera");
@@ -67,6 +70,8 @@ class _AvatarImagePickerState extends State<AvatarImagePicker> {
                 ),
               ),
             ),
+
+            // Gallery picker
             TextButton.icon(
               onPressed: () {
                 _takePicture("gallery");
@@ -79,6 +84,8 @@ class _AvatarImagePickerState extends State<AvatarImagePicker> {
                 ),
               ),
             ),
+
+            // Avatar picker
             TextButton.icon(
               onPressed: () {
                 // TODO

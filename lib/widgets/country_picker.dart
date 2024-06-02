@@ -74,6 +74,8 @@ class _CountryPickerState extends State<CountryPicker> {
       width: double.infinity,
       child: Column(
         children: [
+          
+          // Country picker
           CountryListPick(
             appBar: AppBar(
               backgroundColor: Colors.blue,
@@ -95,6 +97,8 @@ class _CountryPickerState extends State<CountryPicker> {
             },
           ),
           const SizedBox(height: 20),
+
+          // Add button
           _pickedCountryName == ""
               ? Text(
                   "Pick country",
@@ -117,6 +121,8 @@ class _CountryPickerState extends State<CountryPicker> {
                   ),
                 ),
           const SizedBox(height: 20),
+
+          // Info text if country is added
           _isContainsCountry
               ? Text("$_pickedCountryName is already on your list")
               : Container(),

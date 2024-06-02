@@ -101,6 +101,7 @@ class _AuthScreenState extends State<AuthScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              // Globe image
               Container(
                 height: 200,
                 margin: const EdgeInsets.all(10),
@@ -108,6 +109,8 @@ class _AuthScreenState extends State<AuthScreen> {
                   'assets/earth.png',
                 ),
               ),
+
+              // Auth Card
               Card(
                 margin:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -119,12 +122,15 @@ class _AuthScreenState extends State<AuthScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          // Avatar Picker
                           if (!_isLogin)
                             AvatarImagePicker(
                               onPickImage: (pickedImage) {
                                 _selectedImage = pickedImage;
                               },
                             ),
+                      
+                          // Username input
                           if (!_isLogin)
                             TextFormField(
                               controller: _usernameController,
@@ -143,6 +149,8 @@ class _AuthScreenState extends State<AuthScreen> {
                               },
                             ),
                           const SizedBox(height: 20),
+                          
+                          // Email input
                           TextFormField(
                             controller: _emailController,
                             autocorrect: false,
@@ -162,6 +170,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           const SizedBox(height: 20),
+
+                          // Password input
                           TextFormField(
                             controller: _passwordController,
                             decoration: const InputDecoration(
@@ -176,6 +186,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           const SizedBox(height: 20),
+
+                          // Submit buttons
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [

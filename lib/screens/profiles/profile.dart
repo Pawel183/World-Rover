@@ -57,6 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Avatar
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [

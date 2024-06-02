@@ -5,7 +5,7 @@ import 'package:world_rover/screens/bottom_navbar/community.dart';
 import 'package:world_rover/screens/bottom_navbar/home_page.dart';
 import 'package:world_rover/screens/bottom_navbar/visited_places.dart';
 import 'package:world_rover/screens/bottom_navbar/world_map.dart';
-import 'package:world_rover/screens/profile.dart';
+import 'package:world_rover/screens/profiles/profile.dart';
 
 final _firebase = FirebaseAuth.instance;
 
@@ -63,6 +63,7 @@ class _TabsScreenState extends State<TabsScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
+          // User profile button
           Padding(
             padding: const EdgeInsets.only(right: 15),
             child: InkWell(
@@ -94,21 +95,28 @@ class _TabsScreenState extends State<TabsScreen> {
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: [
+          // Home Page
           BottomNavigationBarItem(
             icon: const Icon(Icons.home),
             label: "Home",
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
+
+          // Visited Places
           BottomNavigationBarItem(
             icon: const Icon(Icons.travel_explore),
             label: "Visited Places",
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
+
+          // World Map
           BottomNavigationBarItem(
             icon: const Icon(Icons.map),
             label: "World Map",
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
+
+          // Community
           BottomNavigationBarItem(
             icon: const Icon(Icons.people),
             label: "Community",

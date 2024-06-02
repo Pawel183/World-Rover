@@ -75,12 +75,15 @@ class _AvatarImageChangerState extends State<AvatarImageChanger> {
       width: double.infinity,
       child: Column(
         children: [
+          // Avatar
           CircleAvatar(
             foregroundImage: pickedImageFile == null
                 ? currentImage
                 : FileImage(pickedImageFile!),
             radius: 64,
           ),
+
+          // Camera picker
           TextButton.icon(
             onPressed: () {
               takePicture("camera");
@@ -93,6 +96,8 @@ class _AvatarImageChangerState extends State<AvatarImageChanger> {
               ),
             ),
           ),
+
+          // Gallery picker
           TextButton.icon(
             onPressed: () {
               takePicture("gallery");
@@ -105,6 +110,8 @@ class _AvatarImageChangerState extends State<AvatarImageChanger> {
               ),
             ),
           ),
+
+          // Avatar picker
           TextButton.icon(
             onPressed: () {
               // TODO
@@ -117,6 +124,8 @@ class _AvatarImageChangerState extends State<AvatarImageChanger> {
               ),
             ),
           ),
+
+          // Apply button
           ElevatedButton(
             onPressed: applyChanges,
             style: ElevatedButton.styleFrom(

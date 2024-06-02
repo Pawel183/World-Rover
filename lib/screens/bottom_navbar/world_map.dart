@@ -46,8 +46,11 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
       padding: const EdgeInsets.only(left: 8, right: 8, top: 40, bottom: 10),
       child: Column(
         children: [
+          // World Map
           SimpleWorldMap(visitedCountries: visitedCountries),
           const SizedBox(height: 40),
+
+          // Statistic Box
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             padding: const EdgeInsets.all(12),
@@ -67,6 +70,7 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
             child: Center(
               child: Column(
                 children: [
+                  // Headline
                   Text(
                     "Statistic",
                     style: TextStyle(
@@ -76,6 +80,8 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Statistic Info (Circular Percent Indicator and Countries Visited Text)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
@@ -117,9 +123,12 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
             ),
           ),
           const SizedBox(height: 50),
+
+          // Add/Remove buttons
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
+              // Add Button
               ElevatedButton.icon(
                 onPressed: () {
                   showModalBottomSheet(
@@ -140,6 +149,8 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
                 label: const Text("Add country"),
                 icon: const Icon(Icons.add),
               ),
+
+              // Remove Button
               ElevatedButton.icon(
                 label: const Text("Remove country"),
                 icon: const Icon(Icons.remove),
