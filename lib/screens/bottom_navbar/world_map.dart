@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:world_rover/widgets/country_picker.dart';
 import 'package:world_rover/widgets/simple_world_map.dart';
 
 class WorldMapScreen extends StatefulWidget {
@@ -10,10 +13,35 @@ class WorldMapScreen extends StatefulWidget {
 }
 
 class _WorldMapScreenState extends State<WorldMapScreen> {
-  var visitedCountries = ["US", "CN", "PL"];
+  late List<String> visitedCountries = [""];
+
+  @override
+  void initState() {
+    getVisitedCountries();
+    super.initState();
+  }
+
+  void getVisitedCountries() async {
+    var visitedCountriesDoc = await FirebaseFirestore.instance
+        .collection('user_visited_countries')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    setState(() {
+      visitedCountries =
+          visitedCountriesDoc.data()?['visited_countries']?.cast<String>();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    var visitedCountriesLength = visitedCountries.length;
+    if (visitedCountries.contains("")) {
+      visitedCountriesLength = 0;
+    }
+    var percentOfVisitedWorld =
+        double.parse((visitedCountriesLength / 195).toStringAsFixed(3));
+
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 40, bottom: 10),
       child: Column(
@@ -54,10 +82,10 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
                       CircularPercentIndicator(
                         radius: 60,
                         lineWidth: 15,
-                        percent: 0.22,
+                        percent: percentOfVisitedWorld,
                         progressColor: Theme.of(context).colorScheme.primary,
                         center: Text(
-                          "22%",
+                          "${(percentOfVisitedWorld * 100).toString()}%",
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 26,
@@ -67,7 +95,7 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
                       Column(
                         children: [
                           Text(
-                            "13",
+                            visitedCountriesLength.toString(),
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.primary,
                               fontSize: 40,
@@ -93,14 +121,31 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  showModalBottomSheet(
+                    context: context,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20),
+                      ),
+                    ),
+                    builder: (context) {
+                      return CountryPicker(
+                        getVisitedCountries: getVisitedCountries,
+                      );
+                    },
+                  );
+                },
                 label: const Text("Add country"),
                 icon: const Icon(Icons.add),
               ),
               ElevatedButton.icon(
-                onPressed: () {},
                 label: const Text("Remove country"),
                 icon: const Icon(Icons.remove),
+                onPressed: () {
+                  print(visitedCountries);
+                },
               )
             ],
           )
