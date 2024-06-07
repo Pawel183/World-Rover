@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:world_rover/screens/others/remove_countries.dart';
 import 'package:world_rover/widgets/country_picker.dart';
 import 'package:world_rover/widgets/simple_world_map.dart';
 
@@ -40,7 +41,8 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
       visitedCountriesLength = 0;
     }
     var percentOfVisitedWorld =
-        double.parse((visitedCountriesLength / 195).toStringAsFixed(3));
+        (visitedCountriesLength / 195).toStringAsFixed(3);
+    var percentValueOfVisitedWorld = double.parse(percentOfVisitedWorld);
 
     return Padding(
       padding: const EdgeInsets.only(left: 8, right: 8, top: 40, bottom: 10),
@@ -88,10 +90,10 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
                       CircularPercentIndicator(
                         radius: 60,
                         lineWidth: 15,
-                        percent: percentOfVisitedWorld,
+                        percent: percentValueOfVisitedWorld,
                         progressColor: Theme.of(context).colorScheme.primary,
                         center: Text(
-                          "${(percentOfVisitedWorld * 100).toString()}%",
+                          "${(percentValueOfVisitedWorld * 100).toStringAsFixed(1)}%",
                           style: TextStyle(
                             color: Theme.of(context).colorScheme.primary,
                             fontSize: 26,
@@ -155,7 +157,15 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
                 label: const Text("Remove country"),
                 icon: const Icon(Icons.remove),
                 onPressed: () {
-                  print(visitedCountries);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RemoveCountries(
+                        visitedCountries: visitedCountries,
+                        getVisitedCountries: getVisitedCountries,
+                      ),
+                    ),
+                  );
                 },
               )
             ],
