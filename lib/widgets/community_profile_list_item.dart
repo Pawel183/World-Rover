@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:world_rover/screens/profiles/community_profile.dart';
+import 'package:world_rover/screens/community_profile.dart';
 
 class CommunityProfileListItem extends StatelessWidget {
   const CommunityProfileListItem({

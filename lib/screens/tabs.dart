@@ -1,11 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:world_rover/screens/bottom_navbar/community.dart';
-import 'package:world_rover/screens/bottom_navbar/home_page.dart';
 import 'package:world_rover/screens/bottom_navbar/visited_places.dart';
 import 'package:world_rover/screens/bottom_navbar/world_map.dart';
-import 'package:world_rover/screens/profiles/profile.dart';
+import 'package:world_rover/screens/bottom_navbar/profile.dart';
 
 final _firebase = FirebaseAuth.instance;
 
@@ -19,29 +17,17 @@ class TabsScreen extends StatefulWidget {
 }
 
 class _TabsScreenState extends State<TabsScreen> {
-  var _userAvatarUrl = "";
   int _selectedIndex = 0;
 
   @override
   void initState() {
-    setUserAvatar();
+    _widgetOptions = [
+      const VisitedPlacesScreen(),
+      const WorldMapScreen(),
+      const CommunityScreen(),
+      ProfileScreen(user: _firebase.currentUser)
+    ];
     super.initState();
-  }
-
-  void setUserAvatar() async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(_firebase.currentUser!.uid)
-          .get();
-      final data = doc.data() as Map<String, dynamic>;
-      setState(() {
-        _userAvatarUrl = data['image_url'];
-        // _userUsername = data['username'];
-      });
-    } catch (e) {
-      print("Error getting document: $e");
-    }
   }
 
   void _onItemTapped(int index) {
@@ -50,58 +36,19 @@ class _TabsScreenState extends State<TabsScreen> {
     });
   }
 
-  static const List<Widget> _widgetOptions = [
-    HomePageScreen(),
-    VisitedPlacesScreen(),
-    WorldMapScreen(),
-    CommunityScreen(),
-  ];
+  List<Widget> _widgetOptions = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
-        actions: [
-          // User profile button
-          Padding(
-            padding: const EdgeInsets.only(right: 15),
-            child: InkWell(
-              onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ProfileScreen(
-                      user: _firebase.currentUser,
-                      setUserAvatar: setUserAvatar,
-                    ),
-                  ),
-                );
-              },
-              child: CircleAvatar(
-                foregroundImage: _userAvatarUrl.isNotEmpty
-                    ? NetworkImage(_userAvatarUrl)
-                    : null,
-                radius: 20,
-                child: _userAvatarUrl.isEmpty
-                    ? const CircularProgressIndicator()
-                    : null,
-              ),
-            ),
-          ),
-        ],
       ),
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         items: [
-          // Home Page
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
-            label: "Home",
-            backgroundColor: Theme.of(context).colorScheme.primary,
-          ),
-
           // Visited Places
           BottomNavigationBarItem(
             icon: const Icon(Icons.travel_explore),
@@ -120,6 +67,13 @@ class _TabsScreenState extends State<TabsScreen> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.people),
             label: "Community",
+            backgroundColor: Theme.of(context).colorScheme.primary,
+          ),
+
+          // Home Page
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.account_circle),
+            label: "Profile",
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         ],

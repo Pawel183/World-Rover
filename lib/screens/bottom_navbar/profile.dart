@@ -9,11 +9,9 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
     super.key,
     required this.user,
-    required this.setUserAvatar,
   });
 
   final User? user;
-  final void Function() setUserAvatar;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -42,16 +40,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     } catch (e) {
       print("Error getting document: $e");
     }
-
-    widget.setUserAvatar();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
-      ),
       body: Padding(
         padding: const EdgeInsets.only(top: 40, left: 8, right: 8, bottom: 50),
         child: Column(
