@@ -1,9 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:world_rover/screens/bottom_navbar/community.dart';
-import 'package:world_rover/screens/bottom_navbar/visited_places.dart';
-import 'package:world_rover/screens/bottom_navbar/world_map.dart';
-import 'package:world_rover/screens/bottom_navbar/profile.dart';
+import 'package:world_rover/screens/main_screens/community/community.dart';
+import 'package:world_rover/screens/main_screens/visited_places/visited_places.dart';
+import 'package:world_rover/screens/main_screens/world_map/world_map.dart';
+import 'package:world_rover/screens/main_screens/profile.dart';
 
 final _firebase = FirebaseAuth.instance;
 

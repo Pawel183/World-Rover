@@ -2,12 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:world_rover/screens/others/auth.dart';
-import 'package:world_rover/screens/others/splash.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:world_rover/screens/auth/auth.dart';
+import 'package:world_rover/screens/auth/splash.dart';
 import 'package:world_rover/screens/tabs.dart';
 import 'firebase_options.dart';
 
 void main() async {
+  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

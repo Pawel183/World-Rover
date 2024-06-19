@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:world_rover/widgets/community_profile_list_item.dart';
+import 'package:world_rover/widgets/profile/community_profile_list_item.dart';
 
 class CommunityScreen extends StatefulWidget {
   const CommunityScreen({super.key});

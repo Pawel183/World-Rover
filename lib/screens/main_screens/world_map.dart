@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:world_rover/screens/others/remove_countries.dart';
-import 'package:world_rover/widgets/country_picker.dart';
-import 'package:world_rover/widgets/simple_world_map.dart';
+import 'package:world_rover/screens/main_screens/world_map/remove_countries.dart';
+import 'package:world_rover/widgets/world_map/country_picker.dart';
+import 'package:world_rover/widgets/world_map/simple_world_map.dart';
 
 class WorldMapScreen extends StatefulWidget {
   const WorldMapScreen({super.key});

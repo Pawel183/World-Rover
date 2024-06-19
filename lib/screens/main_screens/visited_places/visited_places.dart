@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:world_rover/screens/add_visit_place.dart';
+import 'package:world_rover/screens/main_screens/visited_places/add_visit_place.dart';
 
 class VisitedPlacesScreen extends StatefulWidget {
   const VisitedPlacesScreen({super.key});

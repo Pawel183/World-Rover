@@ -30,7 +30,6 @@ class RemoveCountryItem extends StatelessWidget {
                       isoCode,
                       height: 48,
                       width: 62,
-                      borderRadius: 8,
                     ),
                     Expanded(
                       child: Padding(

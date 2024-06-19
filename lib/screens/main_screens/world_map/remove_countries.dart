@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:world_rover/widgets/remove_country_item.dart';
+import 'package:world_rover/widgets/world_map/remove_country_item.dart';
 
 class RemoveCountries extends StatefulWidget {
   const RemoveCountries({
