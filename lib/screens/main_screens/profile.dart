@@ -113,7 +113,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         onPressed: () {},
         child: IconButton(
           onPressed: () async {
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop();
             await FirebaseAuth.instance.signOut();
           },
           icon: const Icon(Icons.logout),

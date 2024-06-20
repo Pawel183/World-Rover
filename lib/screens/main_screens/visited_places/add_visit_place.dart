@@ -1,14 +1,14 @@
-import 'dart:convert';
+import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:country_list_pick/country_list_pick.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
 import 'package:world_rover/models/place_location.dart';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:world_rover/screens/main_screens/visited_places/map_picker.dart';
-import 'package:world_rover/utils/utils.dart';
+import 'package:world_rover/widgets/visited_places/date_picker.dart';
+import 'package:world_rover/widgets/visited_places/location_picker.dart';
+import 'package:world_rover/widgets/visited_places/photo_picker.dart';
+import 'package:world_rover/widgets/visited_places/visited_place_country.dart';
 
 class AddVisitPlace extends StatefulWidget {
   const AddVisitPlace({super.key});
@@ -25,7 +25,7 @@ class _AddVisitPlaceState extends State<AddVisitPlace> {
   DateTime _pickedDate = DateTime.now();
   late TextEditingController _textController;
   PlaceLocation? _pickedLocation;
-  bool _isPickingLocation = false;
+  File? _pickedImageFile;
 
   @override
   void initState() {
@@ -35,283 +35,196 @@ class _AddVisitPlaceState extends State<AddVisitPlace> {
 
   @override
   void dispose() {
-    _textController.dispose();
-    _pickedLocation = null;
+    _resetValues();
     super.dispose();
   }
 
-  void _pickDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _pickedDate,
-      firstDate: DateTime(2000, 8),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != _pickedDate) {
-      setState(() {
-        _pickedDate = picked;
-      });
-    }
-    print(_pickedDate.toString());
-    print(_textController.text);
+  void _resetValues() {
+    setState(() {
+      _pickedCountryCode = "";
+      _pickedCountryName = "";
+      _pickedDate = DateTime.now();
+      _textController.text = "";
+      _pickedLocation = null;
+      _pickedImageFile = null;
+    });
   }
 
-  Future<void> _savePlace(double lat, double lng) async {
-    String myApiKey = dotenv.get("GOOGLE_API_KEY");
-    final url = Uri.parse(
-      "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lng&key=$myApiKey",
-    );
-    final response = await http.get(url);
-    final resData = json.decode(response.body);
-    final address = resData['results'][0]["formatted_address"];
-
-    setState(() {
-      _pickedLocation = PlaceLocation(
-        latitude: lat,
-        longitude: lng,
-        address: address,
+  void _savePlace() async {
+    if (_pickedCountryCode.isEmpty ||
+        _pickedCountryName.isEmpty ||
+        _pickedLocation == null ||
+        _pickedImageFile == null ||
+        _textController.text.isEmpty) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Something went wrong'),
+        ),
       );
-      _isPickingLocation = false;
-    });
+      return;
+    }
 
-    print(_pickedLocation!.address);
-    print(_pickedLocation!.latitude);
-    print(_pickedLocation!.longitude);
+    try {
+      final user = FirebaseAuth.instance.currentUser!;
+      final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final uniqueId = '${timestamp}_${user.uid}';
+      final storageRef = FirebaseStorage.instance
+          .ref()
+          .child("users_images")
+          .child("visited_places_images")
+          .child(user.uid)
+          .child("$uniqueId.jpg");
+
+      await storageRef.putFile(_pickedImageFile!);
+
+      final imageUrl = await storageRef.getDownloadURL();
+
+      final visitedPlaceData = {
+        'location': {
+          'latitude': _pickedLocation!.latitude,
+          'longitude': _pickedLocation!.longitude,
+          'address': _pickedLocation!.address,
+        },
+        'date': _pickedDate.toIso8601String(),
+        'place_name': _textController.text,
+        'image_url': imageUrl,
+        'user_id': user.uid,
+        'timestamp': timestamp,
+      };
+
+      await FirebaseFirestore.instance
+          .collection('user_visited_places')
+          .doc(user.uid)
+          .collection(_pickedCountryCode)
+          .doc(uniqueId)
+          .set(visitedPlaceData);
+
+      _resetValues();
+      Navigator.pop(context);
+    } catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString()),
+        ),
+      );
+    }
   }
 
-  void _getCurrentLocation() async {
-    Location location = Location();
-
-    bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    LocationData locationData;
-
-    serviceEnabled = await location.serviceEnabled();
-    if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
-      if (!serviceEnabled) {
-        return;
-      }
-    }
-
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
-        return;
-      }
-    }
-
+  void _setCountryPicker(String countryCode, String countryName) {
     setState(() {
-      _isPickingLocation = true;
+      _pickedCountryCode = countryCode;
+      _pickedCountryName = countryName;
     });
-
-    locationData = await location.getLocation();
-    final lat = locationData.latitude;
-    final lng = locationData.longitude;
-
-    if (lat == null || lng == null) {
-      setState(() {
-        _isPickingLocation = false;
-      });
-      return;
-    }
-
-    await _savePlace(lat, lng);
   }
 
-  void _pickLocation() async {
-    final pickedLocation = await Navigator.of(context).push<LatLng>(
-      MaterialPageRoute(
-        builder: (ctx) => const MapPickerScreen(),
-      ),
-    );
+  void _setLocationPicker(PlaceLocation location) {
+    setState(() {
+      _pickedLocation = location;
+    });
+  }
 
-    if (pickedLocation == null) {
-      return;
-    }
+  void _setPickedDated(DateTime pickedDate) {
+    setState(() {
+      _pickedDate = pickedDate;
+    });
+  }
 
-    _savePlace(pickedLocation.latitude, pickedLocation.longitude);
+  void _setPickedImage(File pickedImage) {
+    setState(() {
+      _pickedImageFile = pickedImage;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget containerContent = const Center(
-      child: Text('No location picked yet'),
-    );
-
-    if (_pickedLocation != null) {
-      containerContent = Image.network(
-        locationImage(_pickedLocation),
-        fit: BoxFit.cover,
-        width: double.infinity,
-        height: double.infinity,
-      );
-    }
-
-    if (_isPickingLocation) {
-      containerContent = const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 20),
+            child: Row(
+              children: [
+                IconButton(
+                  onPressed: _savePlace,
+                  icon: const Icon(Icons.save),
+                ),
+                IconButton(
+                  onPressed: _resetValues,
+                  icon: const Icon(Icons.restore_sharp),
+                )
+              ],
+            ),
+          ),
+        ],
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Center(
-          child: Column(
-            children: [
-              // Country picker
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Pick a country: ",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 18,
-                    ),
+        child: SizedBox(
+          height: double.infinity,
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Country picker
+                VisitedPlaceCountryPicker(
+                  onPickCountry: _setCountryPicker,
+                ),
+                const SizedBox(height: 20),
+
+                // Place name
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
                   ),
-                  CountryListPick(
-                    appBar: AppBar(
-                      backgroundColor: Colors.blue,
-                      title: const Text('Choose country'),
-                    ),
-                    theme: CountryTheme(
-                      isShowFlag: true,
-                      isShowTitle: true,
-                      isShowCode: false,
-                      isDownIcon: true,
-                      showEnglishName: true,
-                    ),
-                    onChanged: (country) {
+                  child: TextField(
+                    controller: _textController,
+                    onSubmitted: (enteredText) {
                       setState(() {
-                        _pickedCountryCode = country!.code!;
-                        _pickedCountryName = country.name!;
+                        _textController.text = enteredText;
                       });
                     },
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Place name
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 50,
-                ),
-                child: TextField(
-                  controller: _textController,
-                  onSubmitted: (enteredText) {
-                    setState(() {
-                      _textController.text = enteredText;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 1,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 1,
-                      ),
-                    ),
-                    contentPadding: const EdgeInsets.all(8),
-                    labelText: 'Visit place name',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Date picker
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      _pickDate(context);
-                    },
-                    label: const Text('Pick a date'),
-                    icon: const Icon(Icons.calendar_today),
-                    style: OutlinedButton.styleFrom(
-                      textStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontSize: 18,
-                      ),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.primary,
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                  Text(
-                    _pickedDate.toString().split(' ')[0].replaceAll("-", "/"),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-
-              // Location picker
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: _getCurrentLocation,
-                        icon: const Icon(Icons.location_searching),
-                        label: const Text('Get current location'),
-                        style: ElevatedButton.styleFrom(
-                          maximumSize: const Size(150, 150),
-                          alignment: Alignment.center,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1,
                         ),
                       ),
-                      const SizedBox(height: 40),
-                      ElevatedButton.icon(
-                        onPressed: _pickLocation,
-                        icon: const Icon(Icons.location_pin),
-                        label: const Text('Pick location'),
-                        style: ElevatedButton.styleFrom(
-                          maximumSize: const Size(150, 150),
-                          alignment: Alignment.center,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1,
                         ),
                       ),
-                    ],
-                  ),
-                  Container(
-                    width: 200,
-                    height: 200,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .primary
-                            .withOpacity(0.7),
-                        width: 1,
-                      ),
+                      contentPadding: const EdgeInsets.all(8),
+                      labelText: 'Visit place name',
                     ),
-                    child: containerContent,
                   ),
-                ],
-              )
-            ],
+                ),
+                const SizedBox(height: 20),
+
+                // Date picker
+                DatePicker(date: _pickedDate, onPickDate: _setPickedDated),
+                const SizedBox(height: 20),
+
+                // Location picker
+                LocationPicker(
+                    location: _pickedLocation,
+                    onPickLocation: _setLocationPicker),
+                const SizedBox(height: 20),
+
+                // Photo picker
+                PhotoPicker(
+                    image: _pickedImageFile, onPickImage: _setPickedImage),
+              ],
+            ),
           ),
         ),
       ),

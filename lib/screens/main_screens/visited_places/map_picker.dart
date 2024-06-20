@@ -48,10 +48,10 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
         ],
       ),
       body: GoogleMap(
-        onTap: (possition) {
+        onTap: (position) {
           if (widget.isSelecting) {
             setState(() {
-              _pickedLocation = possition;
+              _pickedLocation = position;
             });
           }
         },
@@ -60,13 +60,13 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             widget.location.latitude,
             widget.location.longitude,
           ),
-          zoom: 16,
+          zoom: 10,
         ),
         markers: (_pickedLocation == null && widget.isSelecting)
             ? {}
             : {
                 Marker(
-                  markerId: const MarkerId('marker'),
+                  markerId: const MarkerId('m1'),
                   position: _pickedLocation ??
                       LatLng(
                         widget.location.latitude,
