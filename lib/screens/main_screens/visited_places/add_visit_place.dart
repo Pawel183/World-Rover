@@ -11,7 +11,9 @@ import 'package:world_rover/widgets/visited_places/photo_picker.dart';
 import 'package:world_rover/widgets/visited_places/visited_place_country.dart';
 
 class AddVisitPlace extends StatefulWidget {
-  const AddVisitPlace({super.key});
+  const AddVisitPlace({super.key, required this.onAddPlace});
+
+  final void Function() onAddPlace;
 
   @override
   State<StatefulWidget> createState() {
@@ -93,14 +95,25 @@ class _AddVisitPlaceState extends State<AddVisitPlace> {
         'timestamp': timestamp,
       };
 
-      await FirebaseFirestore.instance
+      final userDocRef = FirebaseFirestore.instance
           .collection('user_visited_places')
-          .doc(user.uid)
-          .collection(_pickedCountryCode)
-          .doc(uniqueId)
-          .set(visitedPlaceData);
+          .doc(user.uid);
+
+      final snapshot = await userDocRef.get();
+      final userData = snapshot.data();
+
+      final visitedPlaces =
+          userData != null && userData.containsKey(_pickedCountryCode)
+              ? List.from(userData[_pickedCountryCode])
+              : [];
+
+      visitedPlaces.add(visitedPlaceData);
+
+      await userDocRef
+          .set({_pickedCountryCode: visitedPlaces}, SetOptions(merge: true));
 
       _resetValues();
+      widget.onAddPlace();
       Navigator.pop(context);
     } catch (error) {
       ScaffoldMessenger.of(context).clearSnackBars();
