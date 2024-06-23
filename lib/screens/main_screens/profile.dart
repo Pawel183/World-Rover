@@ -45,6 +45,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+      ),
       body: Padding(
         padding: const EdgeInsets.only(top: 40, left: 8, right: 8, bottom: 50),
         child: Column(

@@ -10,18 +10,18 @@ import 'package:world_rover/widgets/visited_places/location_picker.dart';
 import 'package:world_rover/widgets/visited_places/photo_picker.dart';
 import 'package:world_rover/widgets/visited_places/visited_place_country.dart';
 
-class AddVisitPlace extends StatefulWidget {
-  const AddVisitPlace({super.key, required this.onAddPlace});
+class AddVisitPlaceScreen extends StatefulWidget {
+  const AddVisitPlaceScreen({super.key, required this.onAddPlace});
 
   final void Function() onAddPlace;
 
   @override
   State<StatefulWidget> createState() {
-    return _AddVisitPlaceState();
+    return _AddVisitPlaceScreenState();
   }
 }
 
-class _AddVisitPlaceState extends State<AddVisitPlace> {
+class _AddVisitPlaceScreenState extends State<AddVisitPlaceScreen> {
   String _pickedCountryCode = "";
   String _pickedCountryName = "";
   DateTime _pickedDate = DateTime.now();

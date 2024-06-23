@@ -3,6 +3,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:world_rover/screens/main_screens/visited_places/add_visit_place.dart';
+import 'package:world_rover/screens/main_screens/visited_places/search.dart';
 import 'package:world_rover/widgets/visited_places/country_places.dart';
 
 class VisitedPlacesScreen extends StatefulWidget {
@@ -72,91 +73,124 @@ class _VisitedPlacesScreenState extends State<VisitedPlacesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Statistic and add button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          "Visited Places",
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          "${visitedPlacesCount.toString()} places",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return AddVisitPlace(
-                                onAddPlace: getVisitedCountriesPlaces,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        shape: const CircleBorder(),
-                        padding: const EdgeInsets.all(20),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                      ),
-                      child: const Icon(
-                        Icons.post_add_rounded,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Visited countries places
-                Expanded(
-                  child: countriesCodes.isEmpty
-                      ? Center(
-                          child: Text(
-                            "No places visited yet",
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              onPressed: () {
+                showSearch(
+                  context: context,
+                  delegate: SearchPlaceScreen(
+                    visitedCountryPlaces: visitedCountryPlaces,
+                    countriesCodes: countriesCodes,
+                    getVisitedCountries: getVisitedCountriesPlaces,
+                  ),
+                );
+              },
+              iconSize: 32,
+              icon: const Icon(Icons.search_outlined),
+            ),
+          )
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Statistic and add button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            "Visited Places",
                             style: TextStyle(
-                              fontSize: 20,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                               color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
-                        )
-                      : ListView.builder(
-                          itemCount: countriesCodes.length,
-                          itemBuilder: (context, index) {
-                            final countryCode = countriesCodes[index];
-                            final places = visitedCountryPlaces[countryCode];
-
-                            return CountryPlaces(
-                              countryCode: countryCode,
-                              places: places,
-                            );
-                          },
+                          const SizedBox(height: 10),
+                          Text(
+                            "${visitedPlacesCount.toString()} places",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return AddVisitPlaceScreen(
+                                  onAddPlace: getVisitedCountriesPlaces,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(20),
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary,
                         ),
-                ),
-              ],
-            ),
+                        child: const Icon(
+                          Icons.post_add_rounded,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Visited countries places
+                  Expanded(
+                    child: countriesCodes.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No places visited yet",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemCount: countriesCodes.length,
+                            itemBuilder: (context, index) {
+                              final countryCode = countriesCodes[index];
+                              final places = visitedCountryPlaces[countryCode];
+
+                              if (places.isEmpty) {
+                                return const SizedBox.shrink();
+                              }
+
+                              return CountryPlaces(
+                                countryCode: countryCode,
+                                places: places,
+                                getVisitedCountries: getVisitedCountriesPlaces,
+                              );
+                            },
+                          ),
+                  ),
+                ],
+              ),
+      ),
     );
   }
 }

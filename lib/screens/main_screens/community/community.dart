@@ -48,23 +48,31 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Widget content;
     if (isLoading) {
-      return const Center(
+      content = const Center(
         child: CircularProgressIndicator(),
       );
     }
 
     if (communityUsers.isEmpty) {
-      return const Center(
+      content = const Center(
         child: Text("Community Page - No users available"),
       );
     }
 
-    return ListView.builder(
+    content = ListView.builder(
       itemCount: communityUsers.length,
       itemBuilder: (context, index) {
         return CommunityProfileListItem(user: communityUsers[index]);
       },
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+      ),
+      body: content,
     );
   }
 }

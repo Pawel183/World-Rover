@@ -8,10 +8,12 @@ class CountryPlaces extends StatelessWidget {
     super.key,
     required this.countryCode,
     required this.places,
+    required this.getVisitedCountries,
   });
 
   final String countryCode;
   final List<dynamic> places;
+  final void Function() getVisitedCountries;
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +26,11 @@ class CountryPlaces extends StatelessWidget {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => VisitedCountryPlaces(
+              builder: (context) => VisitedCountryPlacesScreen(
                 countryName: Country.tryParse(countryCode)?.name ?? countryCode,
+                countryCode: countryCode,
                 visitedPlaces: places,
+                getVisitedCountries: getVisitedCountries,
               ),
             ),
           );

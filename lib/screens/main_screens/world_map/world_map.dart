@@ -44,133 +44,138 @@ class _WorldMapScreenState extends State<WorldMapScreen> {
         (visitedCountriesLength / 195).toStringAsFixed(3);
     var percentValueOfVisitedWorld = double.parse(percentOfVisitedWorld);
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 8, right: 8, top: 40, bottom: 10),
-      child: Column(
-        children: [
-          // World Map
-          SimpleWorldMap(visitedCountries: visitedCountries),
-          const SizedBox(height: 40),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(left: 8, right: 8, top: 40, bottom: 10),
+        child: Column(
+          children: [
+            // World Map
+            SimpleWorldMap(visitedCountries: visitedCountries),
+            const SizedBox(height: 40),
 
-          // Statistic Box
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            padding: const EdgeInsets.all(12),
-            height: 220,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: const BorderRadius.all(Radius.circular(1)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Column(
-                children: [
-                  // Headline
-                  Text(
-                    "Statistic",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                    ),
+            // Statistic Box
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(12),
+              height: 220,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.all(Radius.circular(1)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 5,
+                    blurRadius: 7,
+                    offset: const Offset(0, 4),
                   ),
-                  const SizedBox(height: 16),
-
-                  // Statistic Info (Circular Percent Indicator and Countries Visited Text)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      CircularPercentIndicator(
-                        radius: 60,
-                        lineWidth: 15,
-                        percent: percentValueOfVisitedWorld,
-                        progressColor: Theme.of(context).colorScheme.primary,
-                        center: Text(
-                          "${(percentValueOfVisitedWorld * 100).toStringAsFixed(1)}%",
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 26,
-                          ),
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            visitedCountriesLength.toString(),
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 40,
-                            ),
-                          ),
-                          Text(
-                            "Countries",
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 50),
-
-          // Add/Remove buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Add Button
-              ElevatedButton.icon(
-                onPressed: () {
-                  showModalBottomSheet(
-                    context: context,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
+              child: Center(
+                child: Column(
+                  children: [
+                    // Headline
+                    Text(
+                      "Statistic",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    builder: (context) {
-                      return CountryPicker(
-                        getVisitedCountries: getVisitedCountries,
-                      );
-                    },
-                  );
-                },
-                label: const Text("Add country"),
-                icon: const Icon(Icons.add),
+                    const SizedBox(height: 16),
+
+                    // Statistic Info (Circular Percent Indicator and Countries Visited Text)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        CircularPercentIndicator(
+                          radius: 60,
+                          lineWidth: 15,
+                          percent: percentValueOfVisitedWorld,
+                          progressColor: Theme.of(context).colorScheme.primary,
+                          center: Text(
+                            "${(percentValueOfVisitedWorld * 100).toStringAsFixed(1)}%",
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 26,
+                            ),
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              visitedCountriesLength.toString(),
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 40,
+                              ),
+                            ),
+                            Text(
+                              "Countries",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
+                  ],
+                ),
               ),
+            ),
+            const SizedBox(height: 50),
 
-              // Remove Button
-              ElevatedButton.icon(
-                label: const Text("Remove country"),
-                icon: const Icon(Icons.remove),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RemoveCountries(
-                        visitedCountries: visitedCountries,
-                        getVisitedCountries: getVisitedCountries,
+            // Add/Remove buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // Add Button
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
                       ),
-                    ),
-                  );
-                },
-              )
-            ],
-          )
-        ],
+                      builder: (context) {
+                        return CountryPicker(
+                          getVisitedCountries: getVisitedCountries,
+                        );
+                      },
+                    );
+                  },
+                  label: const Text("Add country"),
+                  icon: const Icon(Icons.add),
+                ),
+
+                // Remove Button
+                ElevatedButton.icon(
+                  label: const Text("Remove country"),
+                  icon: const Icon(Icons.remove),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RemoveCountries(
+                          visitedCountries: visitedCountries,
+                          getVisitedCountries: getVisitedCountries,
+                        ),
+                      ),
+                    );
+                  },
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
