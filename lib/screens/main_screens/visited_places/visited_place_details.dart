@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:world_rover/widgets/visited_places/edit_menu_items.dart';
 
 class VisitedPlaceDetailsScreen extends StatelessWidget {
   const VisitedPlaceDetailsScreen({
@@ -24,10 +25,7 @@ class VisitedPlaceDetailsScreen extends StatelessWidget {
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.edit_document),
-            onPressed: () {},
-          ),
+          const EditMenuItems(),
           Padding(
             padding: const EdgeInsets.only(right: 10),
             child: IconButton(

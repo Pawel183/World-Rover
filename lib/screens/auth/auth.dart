@@ -71,6 +71,7 @@ class _AuthScreenState extends State<AuthScreen> {
           'username': _usernameController.text,
           'email': _emailController.text,
           'image_url': imageUrl,
+          'uid': userCredentials.user!.uid,
         });
       }
     } on FirebaseAuthException catch (err) {
@@ -129,7 +130,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 _selectedImage = pickedImage;
                               },
                             ),
-                      
+
                           // Username input
                           if (!_isLogin)
                             TextFormField(
@@ -149,7 +150,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               },
                             ),
                           const SizedBox(height: 20),
-                          
+
                           // Email input
                           TextFormField(
                             controller: _emailController,

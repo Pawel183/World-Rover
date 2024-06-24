@@ -49,7 +49,7 @@ class _VisitedCountryPlacesScreenState
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Visited places in ${widget.countryName}",
+          widget.countryName,
           style: const TextStyle(color: Colors.white),
         ),
         iconTheme: const IconThemeData(

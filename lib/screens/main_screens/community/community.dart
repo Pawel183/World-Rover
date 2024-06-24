@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:world_rover/screens/main_screens/community/all_community.dart';
 import 'package:world_rover/widgets/profile/community_profile_list_item.dart';
 
 class CommunityScreen extends StatefulWidget {
@@ -11,38 +12,134 @@ class CommunityScreen extends StatefulWidget {
 }
 
 class _CommunityScreenState extends State<CommunityScreen> {
-  var communityUsers = [];
+  List<Map<String, dynamic>> communityFollowedUsers = [];
+  List<Map<String, dynamic>> allUsers = [];
+  List<dynamic> followedUsersUid = [];
   bool isLoading = true;
 
   @override
   void initState() {
-    getUsers();
     super.initState();
+    getAllUsers();
   }
 
-  void getUsers() async {
+  Future<void> getFollowedUsers() async {
     try {
-      final allUsers =
-          await FirebaseFirestore.instance.collection('users').get();
-      final currentUser = await FirebaseFirestore.instance
+      final currentUser = FirebaseAuth.instance.currentUser!;
+      final currentUserDoc = await FirebaseFirestore.instance
           .collection('users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .doc(currentUser.uid)
           .get();
 
-      for (var user in allUsers.docs) {
-        if (user.data()['email'] == currentUser.data()?['email']) {
+      setState(() {
+        followedUsersUid = currentUserDoc.data()?['followed_accounts'] ?? [];
+      });
+    } catch (e) {
+      print("Error fetching followed users: $e");
+    }
+  }
+
+  Future<void> getAllUsers() async {
+    try {
+      final data = await FirebaseFirestore.instance.collection('users').get();
+      await getFollowedUsers();
+
+      final List<Map<String, dynamic>> followedUsersData = [];
+      final List<Map<String, dynamic>> allUsersData = [];
+
+      for (var user in data.docs) {
+        if (user.data()['uid'] == FirebaseAuth.instance.currentUser!.uid) {
           continue;
         }
+        final userData = user.data();
+        final userStats = await getUserStats(userData);
 
-        setState(() {
-          communityUsers.add(user.data());
-        });
+        final userDataWithStats = {
+          ...userData,
+          'visitedPlacesCount': userStats['visitedPlacesCount'],
+          'visitedCountriesCount': userStats['visitedCountriesCount'],
+        };
+
+        if (followedUsersUid.contains(userData['uid'])) {
+          followedUsersData.add(userDataWithStats);
+        }
+        allUsersData.add(userDataWithStats);
       }
+
       setState(() {
+        communityFollowedUsers = followedUsersData;
+        allUsers = allUsersData;
         isLoading = false;
       });
     } catch (e) {
-      print("Error fetching users: $e");
+      print("Error fetching all users: $e");
+    }
+  }
+
+  Future<Map<String, int>> getUserStats(
+      Map<String, dynamic> communityUser) async {
+    try {
+      var visitedPlacesCount = 0;
+      var visitedCountriesCount = 0;
+
+      final userVisitedPlaces = await FirebaseFirestore.instance
+          .collection('user_visited_places')
+          .doc(communityUser['uid'])
+          .get();
+
+      final userVisitedCountries = await FirebaseFirestore.instance
+          .collection('user_visited_countries')
+          .doc(communityUser['uid'])
+          .get();
+
+      visitedPlacesCount = userVisitedPlaces.data()?.length ?? 0;
+      visitedCountriesCount =
+          userVisitedCountries.data()?['visited_countries']?.length ?? 0;
+
+      return {
+        'visitedPlacesCount': visitedPlacesCount,
+        'visitedCountriesCount': visitedCountriesCount,
+      };
+    } catch (e) {
+      print("Error: $e");
+      return {
+        'visitedPlacesCount': 0,
+        'visitedCountriesCount': 0,
+      };
+    }
+  }
+
+  Future<void> setCurrentUserFollowedAccounts(String selectedUserId) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser!;
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      List<String> followedAccounts =
+          List<String>.from(currentUserDoc.data()?['followed_accounts'] ?? []);
+
+      if (followedAccounts.contains(selectedUserId)) {
+        followedAccounts.remove(selectedUserId);
+      } else {
+        followedAccounts.add(selectedUserId);
+      }
+
+      setState(() {
+        followedUsersUid = followedAccounts;
+      });
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .update({
+        'followed_accounts': followedAccounts,
+      });
+
+      await getAllUsers();
+    } catch (e) {
+      print("Error with updating followed users: $e");
     }
   }
 
@@ -53,24 +150,50 @@ class _CommunityScreenState extends State<CommunityScreen> {
       content = const Center(
         child: CircularProgressIndicator(),
       );
-    }
-
-    if (communityUsers.isEmpty) {
+    } else if (communityFollowedUsers.isEmpty) {
       content = const Center(
         child: Text("Community Page - No users available"),
       );
+    } else {
+      content = ListView.builder(
+        itemCount: communityFollowedUsers.length,
+        itemBuilder: (context, index) {
+          return CommunityProfileListItem(
+            communityUser: communityFollowedUsers[index],
+            communityFollowedUsersUid: followedUsersUid,
+            onSetCurrentUserFollowedAccounts: setCurrentUserFollowedAccounts,
+          );
+        },
+      );
     }
-
-    content = ListView.builder(
-      itemCount: communityUsers.length,
-      itemBuilder: (context, index) {
-        return CommunityProfileListItem(user: communityUsers[index]);
-      },
-    );
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              icon: const Icon(Icons.person_add_sharp),
+              iconSize: 32,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => AllComunityProfilesScreen(
+                      allUsers: allUsers,
+                      communityFollowedUsersUid: followedUsersUid,
+                      onSetCurrentUserFollowedAccounts:
+                          setCurrentUserFollowedAccounts,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
       body: content,
     );
