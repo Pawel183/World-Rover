@@ -58,6 +58,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ...userData,
           'visitedPlacesCount': userStats['visitedPlacesCount'],
           'visitedCountriesCount': userStats['visitedCountriesCount'],
+          'visitedCountries': userStats['visitedCountries'],
         };
 
         if (followedUsersUid.contains(userData['uid'])) {
@@ -76,7 +77,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
     }
   }
 
-  Future<Map<String, int>> getUserStats(
+  Future<Map<String, dynamic>> getUserStats(
       Map<String, dynamic> communityUser) async {
     try {
       var visitedPlacesCount = 0;
@@ -99,12 +100,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
       return {
         'visitedPlacesCount': visitedPlacesCount,
         'visitedCountriesCount': visitedCountriesCount,
+        'visitedCountries': userVisitedCountries.data()?['visited_countries'],
       };
     } catch (e) {
       print("Error: $e");
       return {
         'visitedPlacesCount': 0,
         'visitedCountriesCount': 0,
+        'visitedCountries': [],
       };
     }
   }

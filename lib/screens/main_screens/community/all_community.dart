@@ -13,13 +13,19 @@ class AllComunityProfilesScreen extends StatefulWidget {
   final List<dynamic> communityFollowedUsersUid;
   final Function(String) onSetCurrentUserFollowedAccounts;
 
-
   @override
   State<AllComunityProfilesScreen> createState() =>
       _AllComunityProfilesScreenState();
 }
 
 class _AllComunityProfilesScreenState extends State<AllComunityProfilesScreen> {
+  void onSetCurrentUserFollowedAccounts(String selectedUserId) {
+    setState(() {
+      widget.onSetCurrentUserFollowedAccounts(selectedUserId);
+      initState();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget content;
@@ -34,8 +40,7 @@ class _AllComunityProfilesScreenState extends State<AllComunityProfilesScreen> {
           return CommunityProfileListItem(
             communityUser: widget.allUsers[index],
             communityFollowedUsersUid: widget.communityFollowedUsersUid,
-            onSetCurrentUserFollowedAccounts:
-                widget.onSetCurrentUserFollowedAccounts,
+            onSetCurrentUserFollowedAccounts: onSetCurrentUserFollowedAccounts,
           );
         },
       );

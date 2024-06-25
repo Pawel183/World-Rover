@@ -8,7 +8,7 @@ class SimpleWorldMap extends StatelessWidget {
     required this.visitedCountries,
   });
 
-  final List<String> visitedCountries;
+  final List<dynamic> visitedCountries;
 
   @override
   Widget build(BuildContext context) {
